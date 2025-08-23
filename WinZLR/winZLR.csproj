@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Copyright>Copyright © 2025 Henrik Åsman</Copyright>
+    <Description>A Windows front-end interface for the Z-machine debugger, ZLR.
+
+ZLR.VM
+© 2007-2025 Tara McGrew
+https://foss.heptapod.net/zilf/zlr/
+
+ConsoleZLR
+© 2007-2025 Tara McGrew
+https://foss.heptapod.net/zilf/zlr/
+
+WinFormsSyntaxHighlighter
+© 2014-2025 Sina Iravanian
+https://github.com/sinairv/WinFormsSyntaxHighlighter</Description>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <Product>WinZLR - Z-machine Debugger</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="WinFormsSyntaxHighlighter\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
