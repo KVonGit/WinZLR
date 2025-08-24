@@ -957,10 +957,10 @@ namespace winZLR
                     return;
                 }
                 int line = TxtDisassembly.GetLineFromCharIndex(TxtDisassembly.SelectionStart);
-                while (TxtDisassembly.Lines[line].Length < 6 || !IsHex(TxtDisassembly.Lines[line][0..5])) line--;
+                while (line > -1 && (TxtDisassembly.Lines[line].Length < 6 || !IsHex(TxtDisassembly.Lines[line][0..5]))) line--;
 
-                LineInfo? li;
-                li = debugInfo?.FindLine(HexToInt(TxtDisassembly.Lines[line][0..5]));
+                LineInfo? li = null;
+                if (line >= 0) li = debugInfo?.FindLine(HexToInt(TxtDisassembly.Lines[line][0..5]));
 
                 if (li == null)
                 {
@@ -1054,7 +1054,8 @@ namespace winZLR
 
         private void SendContinue()
         {
-            if (!storyStarted) return;
+            if (!storyStarted) 
+                if (storyLoaded) BtnStart.PerformClick(); else return;
             storyRunning = true;
             UpdateHighlights(true);
             client?.SendAsync(Encoding.ASCII.GetBytes("run\n"));
@@ -1795,6 +1796,10 @@ namespace winZLR
                 MnuItmGotoLine.Visible = false;
                 toolStripSeparator6.Visible = false;
             }
+            if (storyStarted)
+                MnuItmContinue.Text = "Continue";
+            else
+                MnuItmContinue.Text = "Start";
         }
 
         private void TxtDisassembly_MouseDown(object sender, MouseEventArgs e)
