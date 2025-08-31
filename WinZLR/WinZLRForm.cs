@@ -54,8 +54,6 @@ using winZLR.WinFormsSyntaxHighlighter;
 // * Move DLLImport to seperate class
 // * Credit for WinFormsSyntaxHighlighter and ConsoleZLR
 // * Setting: matching brackets (or not)
-// * Regex for Hamburg.inf, line 285
-// * Regex for advent_puny, line 1472 'e\\'
 // * Respect position info when highlighting code
 // * Read arrays, actions & globals from debugInfo and make regex
 // * Highlight debugInfo.Actions
@@ -67,8 +65,11 @@ using winZLR.WinFormsSyntaxHighlighter;
 // * FindNext, FindPrevious make sure that hit is visible
 // * Work directly againts ZLR.VM
 // * << (back) and >> (forward) for stepping through codepoints
-// * Clean up all temp-files
 
+/* Changelog:
+    0.1 20250825: First release
+    0.2 2025xxxx: Bugfixes
+*/
 namespace winZLR
 {
     public partial class WinZLRForm : Form
@@ -496,7 +497,7 @@ namespace winZLR
                 for (int i = 0; i < s.Length; i++)
                 {
 
-                    if (s[i][0..2] == "  ")
+                    if (s[i].Length > 2 && s[i][0..2] == "  ")
                     {
                         // Globals
                         string key = s[i][..(s[i].IndexOf('=') - 1)].Trim();
@@ -816,7 +817,6 @@ namespace winZLR
         private void HighlightAddress(RichTextBox rb, string? address, Color color, int indent)
         {
             if (address == null) return;
-            if (HexToInt(address) == -1) return;
 
             if (address == "")
             {
@@ -824,6 +824,8 @@ namespace winZLR
                 rb.SelectionBackColor = color;
                 return;
             }
+
+            if (HexToInt(address) == -1) return;
 
             // Find position
             int idxStart = GetFirstCharIndexFromAddress(rb, address);
@@ -1393,6 +1395,7 @@ namespace winZLR
 
                         debugStream = new FileStream(debugFile, FileMode.Open, FileAccess.Read);
                         debugInfo = new(debugStream);       // reload debugInfo with correct paths
+                        //File.Delete(tmpFile);
                     }
                 }
 
@@ -1762,6 +1765,9 @@ namespace winZLR
         private void ResetGlobalVariables()
         {
             // Reset all globals
+            currentLine = -1;
+            currentAddress = "";
+            currentFile = "";
             TxtSource.Text = "";
             TxtSource.Rtf = "";
             TxtDisassembly.Text = "";
@@ -1868,16 +1874,18 @@ namespace winZLR
             else
             {
                 //Inform6, the definition order matters
-                // comment that contains string should all be comment 
-                highlighterSource.AddPattern(new PatternDefinition(@"!.*"".*"".*", RegexOptions.Multiline), new SyntaxStyle(Color.Green, false, false));
+                // comment that contains string should all be comment (! must have as space before !, otherwise it's an exclamtion
+                highlighterSource.AddPattern(new PatternDefinition(@"\s!.*"".*"".*", RegexOptions.Multiline), new SyntaxStyle(Color.Green, false, false));
                 // ! at start of line is single-line comments 
                 highlighterSource.AddPattern(new PatternDefinition(@"(^![\s|\w]).*?$", RegexOptions.Multiline), new SyntaxStyle(Color.Green, false, false));
                 // double quote strings
                 highlighterSource.AddPattern(new PatternDefinition(@"\""(\\.|[^\""])*\"""), new SyntaxStyle(Color.Maroon, false, false));
                 // compiler-directives
                 highlighterSource.AddPattern(new PatternDefinition(@"(!%).*?$", RegexOptions.Multiline), new SyntaxStyle(Color.Maroon, false, false));
-                // other ! is a comment
+                // all other ! is start of a comment
                 highlighterSource.AddPattern(new PatternDefinition(@"!.*?$", RegexOptions.Multiline), new SyntaxStyle(Color.Green, false, false));
+                // ' '
+                highlighterSource.AddPattern(new PatternDefinition(@"('.*')"), new SyntaxStyle(Color.Maroon, false, false));
                 // keywords2
                 highlighterSource.AddPattern(new PatternDefinition("(", ")", ";", ":", "+", "-", "*", "/", "%", "&", "|", "~", "=", ">", "<", ",", ".", ".#", ".&", "[", "]", "{", "}"), new SyntaxStyle(Color.Blue, true, false));
                 // ## & @
@@ -1887,8 +1895,6 @@ namespace winZLR
                 highlighterSource.AddPattern(new PatternDefinition(@"#.*?$", RegexOptions.Multiline), new SyntaxStyle(Color.Maroon, false, false));
                 // << >>
                 highlighterSource.AddPattern(new PatternDefinition(@"(<<.*>>)"), new SyntaxStyle(Color.Red, false, false));
-                // ' '
-                highlighterSource.AddPattern(new PatternDefinition(@"('.*')"), new SyntaxStyle(Color.Maroon, false, false));
                 // numbers
                 highlighterSource.AddPattern(new PatternDefinition(@"(?<=\s)(-?\d+)"), new SyntaxStyle(Color.DarkOrange, false, false));
                 highlighterSource.AddPattern(new PatternDefinition(@"(?<=\s)(\${1,2}[\dA-Fa-f]+)"), new SyntaxStyle(Color.DarkOrange, false, false));

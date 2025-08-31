@@ -21,7 +21,7 @@ https://foss.heptapod.net/zilf/zlr/
 WinFormsSyntaxHighlighter
 © 2014-2025 Sina Iravanian
 https://github.com/sinairv/WinFormsSyntaxHighlighter</Description>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <AssemblyVersion>0.1.0.1</AssemblyVersion>
     <Product>WinZLR - Z-machine Debugger</Product>
   </PropertyGroup>
 
